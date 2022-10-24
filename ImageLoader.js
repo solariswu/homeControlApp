@@ -1,10 +1,12 @@
 import React, {useEffect, useReducer, useRef, useState} from 'react';
 import {Animated} from 'react-native';
 import Sound from 'react-native-sound';
+import {pwd} from './const';
 
 const githubRawAssetsPath =
   'https://raw.githubusercontent.com/solariswu/musicstore/master/assets/';
 const soundFiles = [
+  'welcome.mp3',
   '001.mp3',
   '002.mp3',
   '003.mp3',
@@ -72,9 +74,12 @@ export const ImageLoader = props => {
 
   const loadImgFilesFromNAS = async () => {
     try {
-      const response = await fetch(
-        'http://192.168.20.15:5000/webapi/entry.cgi?api=SYNO.API.Auth&version=7&method=login&account=clientcredential&passwd=MinYun0404!&format=sid&session=FileStation',
-      );
+      const sidUri =
+        'http://192.168.20.15:5000/webapi/entry.cgi?api=SYNO.API.Auth&version=7&method=login&account=clientcredential&passwd=' +
+        pwd +
+        '&format=sid&session=FileStation';
+
+      const response = await fetch(sidUri);
       const json = await response.json();
       setSid(json.data.sid);
       const files = await getFileListFromNas(
@@ -93,7 +98,6 @@ export const ImageLoader = props => {
   };
 
   function reducer(state = initState, action) {
-    console.log('action type', action.type);
     switch (action.type) {
       case 'count':
         if (state && state.imgFiles && state.imgFiles.length > 1)
@@ -106,7 +110,6 @@ export const ImageLoader = props => {
           };
         return state;
       case 'setImage':
-        console.log('setImage', action);
         return {...state, imgFiles: action.payload};
       default:
         break;
@@ -114,23 +117,31 @@ export const ImageLoader = props => {
   }
 
   useEffect(() => {
+    console.log('currentTrackName:', currentTrackName);
     try {
       const newSound = new Sound(
         githubRawAssetsPath + currentTrackName,
         '', //Sound.MAIN_BUNDLE,
         (error, _sound) => {
           if (error) {
-            console.log('ERROR ON LOAD', error);
+            console.error;
+            'error on loading Sound', error;
             return;
           }
           if (currentSound && currentSound.current) {
             currentSound.current.release();
           }
           currentSound.current = newSound.play(success => {
-            if (success) {
-              console.log('Sound Played Successfully');
+            if (!success) {
+              console.error('unable to play Sound');
             } else {
-              console.log('unable to play Sound');
+              setCount(count => (count + 1 >= soundFiles.size ? 0 : count + 1));
+              let soundIdx = count + 1 >= soundFiles.size ? 0 : count + 1;
+              setCurrentTrackName(soundFiles[soundIdx]);
+              console.log(
+                'finish playing, soundfiles now is:',
+                soundFiles[soundIdx],
+              );
             }
           });
         },
@@ -139,11 +150,13 @@ export const ImageLoader = props => {
       console.error(error);
     }
     () => {
+      console.log('currentSound && currentSound.current', currentSound);
       if (currentSound && currentSound.current) {
         currentSound.current.release();
-        setCount(count => (count + 1 >= 12 ? 0 : count + 1));
-        console.log('sound count:', count);
-        setCurrentTrackName(soundFiles[count]);
+        setCount(count => (count + 1 >= soundFiles.size ? 0 : count + 1));
+        let soundIdx = count + 1 >= soundFiles.size ? 0 : count + 1;
+        setCurrentTrackName(soundFiles[soundIdx]);
+        console.log('finish playing, soundfiles now is:', soundFiles[soundIdx]);
       }
     };
   }, [currentTrackName]);
@@ -169,7 +182,6 @@ export const ImageLoader = props => {
 
   if (!state || !state.imgFiles || state.imgFiles.length < 1) return;
 
-  console.log('imgFiles:', state.imgFiles, 'index:', state.imgDispCount);
   let imgUrl = getImgFileUrl(state.imgFiles, state.imgDispCount, sid);
 
   return (

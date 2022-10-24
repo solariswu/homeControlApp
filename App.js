@@ -7,15 +7,15 @@ import {
   Text,
   useColorScheme,
   View,
+  AccessibilityInfo,
 } from 'react-native';
 
 import Sound from 'react-native-sound';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 import {ImageLoader} from './ImageLoader';
-import {MusicLoader} from './MusicLoader';
 
-const bgImg = {uri: 'https://s1.ax1x.com/2022/08/14/vURiJ1.png'};
+// const bgImg = {uri: 'https://s1.ax1x.com/2022/08/14/vURiJ1.png'};
 
 const Section = ({children, title}) => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -45,26 +45,8 @@ const Section = ({children, title}) => {
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
-  const [sid, setSid] = useState('');
   const [mode, setMode] = useState('home');
   let welcomeSound;
-
-  // const getNasSid = async () => {
-  //   try {
-  //     const response = await fetch(
-  //       'http://192.168.20.15:5000/webapi/entry.cgi?api=SYNO.API.Auth&version=7&method=login&account=clientcredential&passwd=MinYun0404!&format=sid&session=FileStation',
-  //     );
-  //     const json = await response.json();
-  //     setSid(json.data.sid);
-  //     const files = await getFileListFromNas(
-  //       '/homes/clientcredential/imgs',
-  //       json.data.sid,
-  //     );
-  //     setImgFiles(files);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
 
   useEffect(() => {
     Sound.setCategory('Playback', true); // true = mixWithOthers
@@ -78,6 +60,7 @@ const App = () => {
         }
         welcomeSound.play(() => {
           welcomeSound.release();
+          AccessibilityInfo.announceForAccessibility('how are you today?');
         });
       },
     );
@@ -90,7 +73,7 @@ const App = () => {
   switch (mode) {
     case 'home':
       return (
-        <ImageBackground source={bgImg} resizeMode="cover" style={styles.image}>
+        <ImageBackground source={require('./bg.png')} resizeMode="cover" style={styles.image}>
           <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
           <Section children={'Home'} title={'Welcome'} />
           <View style={styles.container}>
@@ -101,22 +84,17 @@ const App = () => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => setMode('out')}>
+              onPress={() => {console.log ('screen reader:', AccessibilityInfo.isScreenReaderEnabled()); 
+              AccessibilityInfo.announceForAccessibility('how are you today?')}}> 
               <Text style={styles.text}>Out</Text>
             </TouchableOpacity>
           </View>
         </ImageBackground>
       );
     case 'in':
-      // const imgUrl = getImgFileUrl(imgFiles, imgDispCount, sid);
-      // return <ImageLoader style={styles.image} source={{uri: imgUrl}} />;
-      return (
-        // <View>
-        //   <MusicLoader />
-          <ImageLoader style={styles.image} />
-        // </View>
-      );
+      return <ImageLoader style={styles.image} />;
     case 'out':
+      break;
     default:
       break;
   }
@@ -175,7 +153,7 @@ const styles = StyleSheet.create({
   image: {
     flex: 1,
     resizeMode: 'contain', // or 'cover' 'center' 'contain' 'repeat' 'stretch',
-    backgroundColor: '#000000',
+    backgroundColor: '#000000'
   },
 });
 
