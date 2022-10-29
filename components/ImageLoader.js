@@ -1,7 +1,7 @@
 import React, {useEffect, useReducer, useRef, useState} from 'react';
 import {Animated} from 'react-native';
 import Sound from 'react-native-sound';
-import {pwd} from './const';
+import {pwd} from '../const';
 
 const githubRawAssetsPath =
   'https://raw.githubusercontent.com/solariswu/musicstore/master/assets/';

@@ -63,3 +63,5 @@ buck-out/
 /vendor/bundle/
 
 const.js
+
+aws-exports.js

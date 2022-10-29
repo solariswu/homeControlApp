@@ -1,3 +1,4 @@
+import { Auth } from 'aws-amplify';
 import React, {useEffect, useState} from 'react';
 import {
   ImageBackground,
@@ -7,15 +8,13 @@ import {
   Text,
   useColorScheme,
   View,
-  AccessibilityInfo,
 } from 'react-native';
 
 import Sound from 'react-native-sound';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 
-import {ImageLoader} from './ImageLoader';
-
-// const bgImg = {uri: 'https://s1.ax1x.com/2022/08/14/vURiJ1.png'};
+import {ImageLoader} from './components/ImageLoader';
+import { Weather } from './components/Weather';
 
 const Section = ({children, title}) => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -46,6 +45,7 @@ const Section = ({children, title}) => {
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
   const [mode, setMode] = useState('home');
+
   let welcomeSound;
 
   useEffect(() => {
@@ -60,10 +60,11 @@ const App = () => {
         }
         welcomeSound.play(() => {
           welcomeSound.release();
-          AccessibilityInfo.announceForAccessibility('how are you today?');
         });
       },
     );
+
+    Auth.signIn('solariswu', '963717');
 
     return () => {
       if (welcomeSound) welcomeSound.release();
@@ -73,7 +74,10 @@ const App = () => {
   switch (mode) {
     case 'home':
       return (
-        <ImageBackground source={require('./bg.png')} resizeMode="cover" style={styles.image}>
+        <ImageBackground
+          source={require('./bg.png')}
+          resizeMode="cover"
+          style={styles.image}>
           <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
           <Section children={'Home'} title={'Welcome'} />
           <View style={styles.container}>
@@ -84,8 +88,7 @@ const App = () => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => {console.log ('screen reader:', AccessibilityInfo.isScreenReaderEnabled()); 
-              AccessibilityInfo.announceForAccessibility('how are you today?')}}> 
+              onPress={() => setMode('out')}>
               <Text style={styles.text}>Out</Text>
             </TouchableOpacity>
           </View>
@@ -94,7 +97,7 @@ const App = () => {
     case 'in':
       return <ImageLoader style={styles.image} />;
     case 'out':
-      break;
+      return <Weather style={styles.image} />;
     default:
       break;
   }
@@ -153,7 +156,7 @@ const styles = StyleSheet.create({
   image: {
     flex: 1,
     resizeMode: 'contain', // or 'cover' 'center' 'contain' 'repeat' 'stretch',
-    backgroundColor: '#000000'
+    backgroundColor: '#000000',
   },
 });
 
