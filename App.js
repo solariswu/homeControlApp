@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 110,
     margin:100,
-    marginTop:400,
+    marginTop:300,
     borderWidth: 1,
     borderColor: '#DDDDDD',
     borderRadius: 10,
