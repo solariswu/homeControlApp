@@ -1,4 +1,4 @@
-import React, {memo, useEffect, useState} from 'react';
+import React, {useRef, useEffect, useState} from 'react';
 import {
   LOCATION,
   KEY,
@@ -21,6 +21,7 @@ export const Memo = ({setMode}) => {
   const [weatherText, setWeatherText] = useState(null);
   const [fixMemoText, setFixMemoText] = useState(null);
   const [varMemoText, setVarMemoText] = useState(null);
+  const currentSound = useRef(null);
 
   const saveMp3file = async (fileName, audioStream) => {
     // create a path you want to write to
@@ -109,7 +110,6 @@ ${nowData.text}，${nowData.windDir}，\
   };
 
   const playMp3File = async fileUri => {
-    // const uri = `${BASEPATH}/memo2.mp3`;
     let textSound = new Sound(
       fileUri,
       '', //Sound.MAIN_BUNDLE,
@@ -118,7 +118,10 @@ ${nowData.text}，${nowData.windDir}，\
           alert('error' + error.message);
           return;
         }
-        textSound.play(() => {
+        if (currentSound && currentSound.current) {
+          currentSound.current.release();
+        }
+        currentSound.current = textSound.play(() => {
           textSound.release();
         });
       },
@@ -132,11 +135,6 @@ ${nowData.text}，${nowData.windDir}，\
     var month = now.getMonth() + 1;
     var date = now.getDate();
     var day = now.getDay();
-    // var hour = now.getHours();
-    // var minutes = now.getMinutes();
-    // if (minutes < 10) {
-    //   minutes = '0' + minutes;
-    // }
 
     const dateText = `${month}月${date}日 星期${dayArray[day]}`;
     return <Text>{dateText}</Text>;
@@ -185,10 +183,10 @@ ${nowData.text}，${nowData.windDir}，\
               return;
             }
 
-            //   if (currentSound && currentSound.current) {
-            // 	currentSound.current.release();
-            //   }
-            const currentSound = weatherSnd.play(success => {
+            if (currentSound && currentSound.current) {
+            	currentSound.current.release();
+            }
+            currentSound.current = weatherSnd.play(success => {
               if (!success) {
                 console.error('unable to play Sound');
               } else {
@@ -207,6 +205,11 @@ ${nowData.text}，${nowData.windDir}，\
   useEffect(() => {
     fetchMemoText();
     getAndPlayWeather(LOCATION, KEY);
+    return () => {
+      if (currentSound && currentSound.current) {
+        currentSound.current.release();
+      }
+    };
   }, []);
 
   const MEMOLIST = ({memoText}) => {
