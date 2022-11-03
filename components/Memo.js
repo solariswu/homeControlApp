@@ -169,11 +169,10 @@ ${nowData.text}，${nowData.windDir}，\
           Text: weatherText,
           VoiceId: 'Zhiyu',
         };
-        // temp comment for saving polly test
-        // return polly.synthesizeSpeech(pollyParams).promise();
-        // })
-        // .then(data => {
-        //   return saveMp3file(WEATHER_FILENAME, data.AudioStream);
+        return polly.synthesizeSpeech(pollyParams).promise();
+        })
+        .then(data => {
+          return saveMp3file(WEATHER_FILENAME, data.AudioStream);
       })
       .then(() => {
         console.log('start new sound', `${WEATHER_FILENAME}.mp3`);
