@@ -14,7 +14,7 @@ import Sound from 'react-native-sound';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 import {ImageLoader} from './components/ImageLoader';
-import { Weather } from './components/Weather';
+import { Memo } from './components/Memo';
 
 const Section = ({children, title}) => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -71,6 +71,10 @@ const App = () => {
     };
   }, []);
 
+  const changeMode = (mode = 'home') => {
+    setMode(mode);
+  }
+
   switch (mode) {
     case 'home':
       return (
@@ -95,9 +99,9 @@ const App = () => {
         </ImageBackground>
       );
     case 'in':
-      return <ImageLoader style={styles.image} />;
+      return <ImageLoader style={styles.image} setMode={changeMode} />;
     case 'out':
-      return <Weather style={styles.image} />;
+      return <Memo style={styles.image} setMode={changeMode} />;
     default:
       break;
   }
