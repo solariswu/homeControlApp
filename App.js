@@ -43,7 +43,6 @@ const Section = ({children, title}) => {
 };
 
 const App = () => {
-  const isDarkMode = useColorScheme() === 'dark';
   const [mode, setMode] = useState('home');
 
   let welcomeSound;
@@ -82,7 +81,6 @@ const App = () => {
           source={require('./bg.png')}
           resizeMode="cover"
           style={styles.image}>
-          <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
           <Section children={'Home'} title={'Welcome'} />
           <View style={styles.container}>
             <TouchableOpacity
@@ -126,8 +124,8 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    flexDirection: 'column',
-    alignItems: 'center',
+    flexDirection: 'row',
+    // alignItems: 'center',
     justifyContent: 'center',
   },
   highlight: {
@@ -139,13 +137,12 @@ const styles = StyleSheet.create({
   },
   button: {
     display: 'flex',
-    flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',
     width: 120,
     height: 110,
-    margin: 10,
-    // backgroundColor: "#222222",
+    margin:100,
+    marginTop:400,
     borderWidth: 1,
     borderColor: '#DDDDDD',
     borderRadius: 10,
