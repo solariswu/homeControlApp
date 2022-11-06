@@ -1,5 +1,13 @@
 import React, {useEffect, useReducer, useRef, useState} from 'react';
-import {Animated} from 'react-native';
+import {
+  Animated,
+  ImageBackground,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  View,
+} from 'react-native';
+
 import Sound from 'react-native-sound';
 import {pwd} from '../const';
 
@@ -34,7 +42,7 @@ const nasListFilesParams = '&folder_path=';
 
 export const ImageLoader = props => {
   const [sid, setSid] = useState('');
-  const [state, dispatch] = useReducer(reducer, {imgDispCount: 0});
+  const [state, dispatch] = useReducer(reducer, {imgDispCount: 0, timeCount: 14*60 + 55});
   const [currentTrackName, setCurrentTrackName] = useState(soundFiles[0]);
   const [count, setCount] = useState(0);
   const currentSound = useRef(null);
@@ -93,28 +101,46 @@ export const ImageLoader = props => {
   };
 
   const initState = {
-    count: 0,
+    // count: 0, // useless
+    imgDispCount: 0,
     imgFiles: [],
   };
 
   function reducer(state = initState, action) {
     switch (action.type) {
       case 'count':
+        if (state.timeCount < (state.imgDispCount + 1) * 5) {
+          props.setMode('home');
+          return initState;
+        }
         if (state && state.imgFiles && state.imgFiles.length > 1)
           return {
             ...state,
-            imgDispCount:
-              state.imgDispCount + 1 >= state.imgFiles.length
-                ? 0
-                : state.imgDispCount + 1,
+            imgDispCount: state.imgDispCount + 1,
           };
         return state;
       case 'setImage':
         return {...state, imgFiles: action.payload};
+      case 'addTen':
+        return {...state, timeCount: state.timeCount + 600};
+      case 'minusTen':
+        return {...state, timeCount: state.timeCount > 600? state.timeCount - 600 : 10};
       default:
         break;
     }
   }
+
+  const secondToDate = result => {
+    var h = Math.floor(result / 3600);
+    var m = Math.floor((result / 60) % 60);
+    var s = Math.floor(result % 60);
+
+    if (result < 0) return '00:00';
+
+    result = h > 0 ? h + ':' : '';
+    result = result + (m > 9 ? '' : '0');
+    return (result = result + m + ":" + (s < 10? `0${s}`: s));
+  };
 
   useEffect(() => {
     console.log('currentTrackName:', currentTrackName);
@@ -167,8 +193,21 @@ export const ImageLoader = props => {
       dispatch({type: 'count'});
     }, 5000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (currentSound && currentSound.current) {
+        currentSound.current.release();
+      }
+    };
   }, []);
+
+  const addTenMins = () => {
+    dispatch({type: 'addTen'});
+  };
+
+  const minusTenMins = () => {
+    dispatch({type: 'minusTen'});
+  };
 
   const opacity = new Animated.Value(0);
 
@@ -182,13 +221,20 @@ export const ImageLoader = props => {
 
   if (!state || !state.imgFiles || state.imgFiles.length < 1) return;
 
-  let imgUrl = getImgFileUrl(state.imgFiles, state.imgDispCount, sid);
+  let imgUrl = getImgFileUrl(
+    state.imgFiles,
+    state.imgDispCount % state.imgFiles.length,
+    sid,
+  );
+
+  var AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
 
   return (
-    <Animated.Image
+    <AnimatedImage
       onLoad={onLoad(opacity)}
       source={{uri: imgUrl}}
       style={[
+        styles.image,
         {
           opacity,
           transform: [
@@ -200,8 +246,64 @@ export const ImageLoader = props => {
             },
           ],
         },
-        props.style,
-      ]}
-    />
+      ]}>
+      <TouchableOpacity
+        style={[styles.button, styles.buttonborder]}
+        onPress={() => props.setMode('home')}>
+        <Text style={styles.text}>Back</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.button, styles.buttonborder]}
+        onPress={() => addTenMins()}>
+        <Text style={styles.text}>T+</Text>
+      </TouchableOpacity>
+      <View style={styles.button}>
+        <Text style={styles.text}>
+          {secondToDate(state.timeCount - state.imgDispCount * 5)}
+        </Text>
+      </View>
+      <TouchableOpacity
+        style={[styles.button, styles.buttonborder]}
+        onPress={() => minusTenMins()}>
+        <Text style={styles.text}>T-</Text>
+      </TouchableOpacity>
+    </AnimatedImage>
   );
 };
+
+const styles = StyleSheet.create({
+  button: {
+    display: 'flex',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    width: 90,
+    height: 30,
+    marginRight: 80,
+    marginLeft: 30,
+    marginTop: 960,
+    opacity: 0.5,
+  },
+  buttonborder: {
+    borderWidth: 1,
+    borderColor: '#DDDDDD',
+    borderRadius: 6,
+  },
+  text: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  time: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+  },
+  image: {
+    flex: 1,
+    resizeMode: 'contain', // or 'cover' 'center' 'contain' 'repeat' 'stretch',
+    backgroundColor: '#000000',
+    width: '100%',
+    flexDirection: 'row',
+  },
+});

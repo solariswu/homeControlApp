@@ -8,7 +8,13 @@ import {
 } from '../const';
 import Sound from 'react-native-sound';
 
-import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  ImageBackground,
+} from 'react-native';
 
 let AWS = require('aws-sdk/dist/aws-sdk-react-native');
 let axios = require('axios');
@@ -121,8 +127,49 @@ ${nowData.text}，${nowData.windDir}，\
         if (currentSound && currentSound.current) {
           currentSound.current.release();
         }
-        currentSound.current = textSound.play(() => {
-          textSound.release();
+        currentSound.current = textSound.play(success => {
+          if (success) {
+            // play twice then back
+            textSound = new Sound(
+              `${BASEPATH}/${WEATHER_FILENAME}.mp3`,
+              '',
+              (err, _snd) => {
+                if (err) {
+                  console.log(err.message);
+                }
+                if (currentSound && currentSound.current) {
+                  currentSound.current.release();
+                }
+                currentSound.current = textSound.play(success => {
+                  if (success) {
+                    textSound = new Sound(
+                      `${BASEPATH}/${MEMO_FILENAME}.mp3`,
+                      '',
+                      (error, _snd) => {
+                        if (error) {
+                          console.log(error.message);
+                        } else {
+                          if (currentSound && currentSound.current) {
+                            currentSound.current.release();
+                          }
+                          //play twice then back to home
+                          textSound.play(() => {
+                            textSound.release();
+                            setMode('home');
+                          });
+                        }
+                      },
+                    );
+                  } else {
+                    //play twice then back to home
+                    console.error('play failed');
+                    textSound.release();
+                    setMode('home');
+                  }
+                });
+              },
+            );
+          }
         });
       },
     );
@@ -168,9 +215,9 @@ ${nowData.text}，${nowData.windDir}，\
           VoiceId: 'Zhiyu',
         };
         return polly.synthesizeSpeech(pollyParams).promise();
-        })
-        .then(data => {
-          return saveMp3file(WEATHER_FILENAME, data.AudioStream);
+      })
+      .then(data => {
+        return saveMp3file(WEATHER_FILENAME, data.AudioStream);
       })
       .then(() => {
         console.log('start new sound', `${WEATHER_FILENAME}.mp3`);
@@ -184,7 +231,7 @@ ${nowData.text}，${nowData.windDir}，\
             }
 
             if (currentSound && currentSound.current) {
-            	currentSound.current.release();
+              currentSound.current.release();
             }
             currentSound.current = weatherSnd.play(success => {
               if (!success) {
@@ -231,26 +278,33 @@ ${nowData.text}，${nowData.windDir}，\
     }
   };
 
-  const onPress = () => {setMode('home')};
+  const onPress = () => {
+    setMode('home');
+  };
 
   return (
-    <View style={[styles.container]}>
+    <ImageBackground
+      source={require('../bg.png')}
+      resizeMode="cover"
+      style={styles.image}>
+      {/* <View style={[styles.container]}> */}
       <TouchableOpacity style={[styles.backButton]} onPress={onPress}>
-        <Text style={[styles.text]}> &lt; Back</Text>
+        <Text style={[styles.text, {fontSize: 20}]}> &lt; Back</Text>
       </TouchableOpacity>
       <Text style={[styles.text]}>
         <DATEINFO />
       </Text>
       <View style={[styles.memo, styles.memoColorOne]}>
-        <Text style={[styles.text]}>{weatherText}</Text>
+        <Text style={[styles.weatherText]}>{weatherText}</Text>
       </View>
       <View style={[styles.memo, styles.memoColorTwo]}>
         <MEMOLIST memoText={fixMemoText} />
       </View>
-      <View style={[styles.memo, styles.memoColorThree]}>
+      <View style={[styles.memo, styles.memoColorTwo]}>
         <MEMOLIST memoText={varMemoText} />
       </View>
-    </View>
+      {/* </View> */}
+    </ImageBackground>
   );
 };
 
@@ -262,8 +316,8 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   backButton: {
-    marginTop: 40,
-    marginBottom: 50,
+    marginTop: 20,
+    marginBottom: 20,
     alignItems: 'flex-start',
   },
   memo: {
@@ -273,20 +327,34 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#777777',
     shadowColor: '#666666',
+    // opacity: 0.5,
   },
   memoColorOne: {
     backgroundColor: '#D6E1D7',
+    opacity: 0.7,
   },
   memoColorTwo: {
-    backgroundColor: '#E7D4B5',
+    color: 'white',
+    textDecorationColor: 'white',
+    // backgroundColor: '#E7D4B5',
   },
   memoColorThree: {
     backgroundColor: '#DBD4C6',
   },
-  text: {
-    color: '#8E9AAB',
+  weatherText: {
+    color: 'black',
     fontWeight: 'bold',
-    fontSize: 28,
+    fontSize: 24,
+    padding: 10,
+    textShadowColor: '#dddddd',
+    textShadowRadius: 2,
+  },
+  text: {
+    color: '#D6E1D7',
+    // fontWeight: 'bold',
+    textShadowColor: 'black',
+    textShadowRadius: 5,
+    fontSize: 24,
     padding: 10,
   },
   outerHeight: {
@@ -301,11 +369,15 @@ const styles = StyleSheet.create({
     borderBottomColor: '#8E9AAB',
   },
   icon: {
-    width: 20,
-    height: 20,
-    margin: 15,
+    width: 16,
+    height: 16,
+    margin: 12,
     borderWidth: 1,
     borderColor: '#8E9AAB',
     borderRadius: 2,
+  },
+  image: {
+    flex: 1,
+    // justifyContent: 'center',
   },
 });

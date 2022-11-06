@@ -1,9 +1,8 @@
-import { Auth } from 'aws-amplify';
+import {Auth} from 'aws-amplify';
 import React, {useEffect, useState} from 'react';
 import {
   ImageBackground,
   TouchableOpacity,
-  StatusBar,
   StyleSheet,
   Text,
   useColorScheme,
@@ -11,10 +10,9 @@ import {
 } from 'react-native';
 
 import Sound from 'react-native-sound';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 import {ImageLoader} from './components/ImageLoader';
-import { Memo } from './components/Memo';
+import {Memo} from './components/Memo';
 
 const Section = ({children, title}) => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -22,19 +20,13 @@ const Section = ({children, title}) => {
     <View style={styles.sectionContainer}>
       <Text
         style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
+          styles.sectionTitle
         ]}>
         {title}
       </Text>
       <Text
         style={[
           styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
         ]}>
         {children}
       </Text>
@@ -72,7 +64,7 @@ const App = () => {
 
   const changeMode = (mode = 'home') => {
     setMode(mode);
-  }
+  };
 
   switch (mode) {
     case 'home':
@@ -81,7 +73,7 @@ const App = () => {
           source={require('./bg.png')}
           resizeMode="cover"
           style={styles.image}>
-          <Section children={'Home'} title={'Welcome'} />
+          <Section children={'#Sydney'} title={'Welcome Home'} />
           <View style={styles.container}>
             <TouchableOpacity
               style={styles.button}
@@ -107,25 +99,30 @@ const App = () => {
 
 const styles = StyleSheet.create({
   sectionContainer: {
-    marginTop: 100,
-    paddingHorizontal: 24,
+    marginTop: 150,
+    paddingHorizontal: 32,
     alignItems: 'center',
   },
   sectionTitle: {
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: '600',
     alignItems: 'center',
+    color: 'white',
+    textShadowColor: '#000',
+    textShadowRadius: 2
   },
   sectionDescription: {
     marginTop: 8,
     fontSize: 28,
     fontWeight: '400',
     alignItems: 'center',
+    color: 'white',
+    textShadowColor: '#000',
+    textShadowRadius: 2
   },
   container: {
     flex: 1,
     flexDirection: 'row',
-    // alignItems: 'center',
     justifyContent: 'center',
   },
   highlight: {
@@ -141,8 +138,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: 120,
     height: 110,
-    margin:100,
-    marginTop:300,
+    margin: 100,
+    marginTop: 250,
     borderWidth: 1,
     borderColor: '#DDDDDD',
     borderRadius: 10,
