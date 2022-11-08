@@ -13,20 +13,13 @@ import {pwd} from '../const';
 
 const githubRawAssetsPath =
   'https://raw.githubusercontent.com/solariswu/musicstore/master/assets/';
-const soundFiles = [
-  'welcome.mp3',
+let soundFiles = [
   '001.mp3',
   '002.mp3',
   '003.mp3',
   '004.mp3',
   '005.mp3',
   '006.mp3',
-  '007.mp3',
-  '008.mp3',
-  '009.mp3',
-  '010.mp3',
-  '011.mp3',
-  '012.mp3',
 ];
 
 const nasRestPrefix = 'http://192.168.20.15:5000/webapi/entry.cgi';
@@ -42,7 +35,10 @@ const nasListFilesParams = '&folder_path=';
 
 export const ImageLoader = props => {
   const [sid, setSid] = useState('');
-  const [state, dispatch] = useReducer(reducer, {imgDispCount: 0, timeCount: 14*60 + 55});
+  const [state, dispatch] = useReducer(reducer, {
+    imgDispCount: 0,
+    timeCount: 14 * 60 + 55,
+  });
   const [currentTrackName, setCurrentTrackName] = useState(soundFiles[0]);
   const [count, setCount] = useState(0);
   const currentSound = useRef(null);
@@ -94,7 +90,12 @@ export const ImageLoader = props => {
         '/homes/clientcredential/imgs',
         json.data.sid,
       );
-      dispatch({type: 'setImage', payload: files});
+      if (files.length > 0) {
+        dispatch({
+          type: 'setImage',
+          payload: files.sort(() => Math.random() - 0.5),
+        });
+      }
     } catch (error) {
       console.error(error);
     }
@@ -124,7 +125,10 @@ export const ImageLoader = props => {
       case 'addTen':
         return {...state, timeCount: state.timeCount + 600};
       case 'minusTen':
-        return {...state, timeCount: state.timeCount > 600? state.timeCount - 600 : 10};
+        return {
+          ...state,
+          timeCount: state.timeCount > 600 ? state.timeCount - 600 : 10,
+        };
       default:
         break;
     }
@@ -139,7 +143,7 @@ export const ImageLoader = props => {
 
     result = h > 0 ? h + ':' : '';
     result = result + (m > 9 ? '' : '0');
-    return (result = result + m + ":" + (s < 10? `0${s}`: s));
+    return (result = result + m + ':' + (s < 10 ? `0${s}` : s));
   };
 
   useEffect(() => {
@@ -188,6 +192,9 @@ export const ImageLoader = props => {
   }, [currentTrackName]);
 
   useEffect(() => {
+    soundFiles.sort(() => Math.random() - 0.5);
+    soundFiles.unshift("welcome.mp3");
+
     loadImgFilesFromNAS();
     const interval = setInterval(() => {
       dispatch({type: 'count'});
@@ -254,8 +261,8 @@ export const ImageLoader = props => {
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.button, styles.buttonborder]}
-        onPress={() => addTenMins()}>
-        <Text style={styles.text}>T+</Text>
+        onPress={() => minusTenMins()}>
+        <Text style={styles.text}>T-</Text>
       </TouchableOpacity>
       <View style={styles.button}>
         <Text style={styles.text}>
@@ -264,8 +271,8 @@ export const ImageLoader = props => {
       </View>
       <TouchableOpacity
         style={[styles.button, styles.buttonborder]}
-        onPress={() => minusTenMins()}>
-        <Text style={styles.text}>T-</Text>
+        onPress={() => addTenMins()}>
+        <Text style={styles.text}>T+</Text>
       </TouchableOpacity>
     </AnimatedImage>
   );
