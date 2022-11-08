@@ -40,7 +40,6 @@ export const ImageLoader = props => {
     timeCount: 14 * 60 + 55,
   });
   const [currentTrackName, setCurrentTrackName] = useState(soundFiles[0]);
-  const [count, setCount] = useState(0);
   const currentSound = useRef(null);
 
   const getImgFileUrl = (files, index, sid) => {
@@ -102,7 +101,6 @@ export const ImageLoader = props => {
   };
 
   const initState = {
-    // count: 0, // useless
     imgDispCount: 0,
     imgFiles: [],
   };
@@ -165,11 +163,12 @@ export const ImageLoader = props => {
             if (!success) {
               console.error('unable to play Sound');
             } else {
-              setCount(count => (count + 1 >= soundFiles.size ? 0 : count + 1));
-              let soundIdx = count + 1 >= soundFiles.size ? 0 : count + 1;
+              // 随机挑一个曲子 [1,n] n = soundFiles.length - 1
+              let soundIdx =
+                Math.floor(Math.random() * (soundFiles.length - 1)) + 1;
               setCurrentTrackName(soundFiles[soundIdx]);
               console.log(
-                'finish playing, soundfiles now is:',
+                'finish playing, soundFiles now is:',
                 soundFiles[soundIdx],
               );
             }
@@ -183,8 +182,8 @@ export const ImageLoader = props => {
       console.log('currentSound && currentSound.current', currentSound);
       if (currentSound && currentSound.current) {
         currentSound.current.release();
-        setCount(count => (count + 1 >= soundFiles.size ? 0 : count + 1));
-        let soundIdx = count + 1 >= soundFiles.size ? 0 : count + 1;
+        // 随机挑一个曲子 [1,n] n = soundFiles.length - 1
+        let soundIdx = Math.floor(Math.random() * (soundFiles.length - 1)) + 1;
         setCurrentTrackName(soundFiles[soundIdx]);
         console.log('finish playing, soundfiles now is:', soundFiles[soundIdx]);
       }
