@@ -14,6 +14,7 @@ import {pwd} from '../const';
 const githubRawAssetsPath =
   'https://raw.githubusercontent.com/solariswu/musicstore/master/assets/';
 let soundFiles = [
+  'welcome.mp3',
   '001.mp3',
   '002.mp3',
   '003.mp3',
@@ -110,7 +111,7 @@ export const ImageLoader = props => {
       case 'count':
         if (state.timeCount < (state.imgDispCount + 1) * 5) {
           props.setMode('home');
-          return initState;
+          return;// initState;
         }
         if (state && state.imgFiles && state.imgFiles.length > 1)
           return {
@@ -191,9 +192,6 @@ export const ImageLoader = props => {
   }, [currentTrackName]);
 
   useEffect(() => {
-    soundFiles.sort(() => Math.random() - 0.5);
-    soundFiles.unshift("welcome.mp3");
-
     loadImgFilesFromNAS();
     const interval = setInterval(() => {
       dispatch({type: 'count'});
@@ -253,26 +251,31 @@ export const ImageLoader = props => {
           ],
         },
       ]}>
-      <TouchableOpacity
-        style={[styles.button, styles.buttonborder]}
-        onPress={() => props.setMode('home')}>
-        <Text style={styles.text}>Back</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.button, styles.buttonborder]}
-        onPress={() => minusTenMins()}>
-        <Text style={styles.text}>T-</Text>
-      </TouchableOpacity>
-      <View style={styles.button}>
-        <Text style={styles.text}>
-          {secondToDate(state.timeCount - state.imgDispCount * 5)}
-        </Text>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={[styles.button, styles.buttonborder]}
+          onPress={() => props.setMode('home')}>
+          <Text style={styles.text}>Back</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, styles.buttonborder]}
+          onPress={() => minusTenMins()}>
+          <Text style={styles.text}>T-</Text>
+        </TouchableOpacity>
+        <View style={styles.button}>
+          <Text style={styles.text}>
+            {secondToDate(state.timeCount - state.imgDispCount * 5)}
+          </Text>
+        </View>
+        <TouchableOpacity
+          style={[styles.button, styles.buttonborder]}
+          onPress={() => addTenMins()}>
+          <Text style={styles.text}>T+</Text>
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        style={[styles.button, styles.buttonborder]}
-        onPress={() => addTenMins()}>
-        <Text style={styles.text}>T+</Text>
-      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <Text style={[styles.bgminfo]}>BGM: {currentTrackName}</Text>
+      </View>
     </AnimatedImage>
   );
 };
@@ -287,7 +290,6 @@ const styles = StyleSheet.create({
     marginRight: 80,
     marginLeft: 30,
     marginTop: 960,
-    opacity: 0.5,
   },
   buttonborder: {
     borderWidth: 1,
@@ -300,16 +302,26 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  bgminfo: {
+    color: 'white',
+    fontStyle: 'italic',
+    fontSize: 10,
+    paddingLeft: 10,
+    marginTop: 10,
+  },
   time: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-evenly',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    opacity: 0.5,
   },
   image: {
     flex: 1,
     resizeMode: 'contain', // or 'cover' 'center' 'contain' 'repeat' 'stretch',
     backgroundColor: '#000000',
     width: '100%',
-    flexDirection: 'row',
   },
 });

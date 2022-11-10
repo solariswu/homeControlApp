@@ -22,22 +22,13 @@ let polly = new AWS.Polly({region: 'ap-southeast-2'});
 let s3 = new AWS.S3({region: 'ap-southeast-2'});
 let RNFS = require('react-native-fs');
 
-const BASEPATH = RNFS.DocumentDirectoryPath;
+import { saveMp3file, BASEPATH } from '../utils';
+
 export const Memo = ({setMode}) => {
   const [weatherText, setWeatherText] = useState(null);
   const [fixMemoText, setFixMemoText] = useState(null);
   const [varMemoText, setVarMemoText] = useState(null);
   const currentSound = useRef(null);
-
-  const saveMp3file = async (fileName, audioStream) => {
-    // create a path you want to write to
-    // :warning: on iOS, you cannot write into `RNFS.MainBundlePath`,
-    // but `RNFS.DocumentDirectoryPath` exists on both platforms and is writable
-    const toFile = `${BASEPATH}/${fileName}.mp3`;
-
-    // write the file
-    return RNFS.writeFile(toFile, audioStream.toString('base64'), 'base64');
-  };
 
   const weatherNowJsonToText = nowData => {
     return `现在室外温度为${nowData.temp}摄氏度，\

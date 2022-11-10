@@ -1,11 +1,11 @@
 import {Auth} from 'aws-amplify';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {
+  AppState,
   ImageBackground,
   TouchableOpacity,
   StyleSheet,
   Text,
-  useColorScheme,
   View,
 } from 'react-native';
 
@@ -15,33 +15,22 @@ import {ImageLoader} from './components/ImageLoader';
 import {Memo} from './components/Memo';
 
 const Section = ({children, title}) => {
-  const isDarkMode = useColorScheme() === 'dark';
   return (
     <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-        ]}>
-        {children}
-      </Text>
+      <Text style={[styles.sectionTitle]}>{title}</Text>
+      <Text style={[styles.sectionDescription]}>{children}</Text>
     </View>
   );
 };
 
 const App = () => {
   const [mode, setMode] = useState('home');
-
-  let welcomeSound;
+  const appState = useRef(AppState.currentState);
+  const currentSound = useRef(null);
 
   useEffect(() => {
     Sound.setCategory('Playback', true); // true = mixWithOthers
-    welcomeSound = new Sound(
+    currentSound.current = new Sound(
       'https://raw.githubusercontent.com/solariswu/musicstore/master/assets/hello.mp3',
       '', //Sound.MAIN_BUNDLE,
       (error, _sound) => {
@@ -49,16 +38,52 @@ const App = () => {
           alert('error' + error.message);
           return;
         }
-        welcomeSound.play(() => {
-          welcomeSound.release();
-        });
+        currentSound.current.play();
+        // () => {
+        //   currentSound.current.release();
+        // });
       },
     );
 
     Auth.signIn('solariswu', '963717');
 
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === 'active'
+      ) {
+        if (currentSound && currentSound.current) {
+          currentSound.current.stop(() => currentSound.current.play());
+        } else {
+          currentSound.current = new Sound(
+            'https://raw.githubusercontent.com/solariswu/musicstore/master/assets/hello.mp3',
+            '', //Sound.MAIN_BUNDLE,
+            (error, _sound) => {
+              if (error) {
+                alert('error' + error.message);
+                return;
+              }
+              currentSound.current.play();
+              // () => {
+              //   currentSound.current.release();
+              // });
+            },
+          );
+        }
+
+        console.log('App has come to the foreground!');
+      }
+
+      appState.current = nextAppState;
+      // setAppStateVisible(appState.current);
+      console.log('AppState', appState.current);
+    });
+
     return () => {
-      if (welcomeSound) welcomeSound.release();
+      if (currentSound && currentSound.current) {
+        currentSound.current.release();
+      }
+      subscription.remove();
     };
   }, []);
 
@@ -109,7 +134,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     color: 'white',
     textShadowColor: '#000',
-    textShadowRadius: 2
+    textShadowRadius: 2,
   },
   sectionDescription: {
     marginTop: 8,
@@ -118,7 +143,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     color: 'white',
     textShadowColor: '#000',
-    textShadowRadius: 2
+    textShadowRadius: 2,
   },
   container: {
     flex: 1,
