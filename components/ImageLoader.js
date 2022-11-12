@@ -11,10 +11,13 @@ import {
 import Sound from 'react-native-sound';
 import {pwd} from '../const';
 
+import {shuffleArray} from '../utils';
+
 const githubRawAssetsPath =
   'https://raw.githubusercontent.com/solariswu/musicstore/master/assets/';
-let soundFiles = [
-  'welcome.mp3',
+
+const sndFiles = [
+  // 'welcome.mp3',
   '001.mp3',
   '002.mp3',
   '003.mp3',
@@ -22,6 +25,10 @@ let soundFiles = [
   '005.mp3',
   '006.mp3',
 ];
+
+const soundFiles = shuffleArray(sndFiles);
+
+const ENTRY_SOUND = 'welcome.mp3';
 
 const nasRestPrefix = 'http://192.168.20.15:5000/webapi/entry.cgi';
 
@@ -40,7 +47,8 @@ export const ImageLoader = props => {
     imgDispCount: 0,
     timeCount: 14 * 60 + 55,
   });
-  const [currentTrackName, setCurrentTrackName] = useState(soundFiles[0]);
+  const [count, setCount] = useState(0);
+  const [currentTrackName, setCurrentTrackName] = useState(ENTRY_SOUND);
   const currentSound = useRef(null);
 
   const getImgFileUrl = (files, index, sid) => {
@@ -111,7 +119,7 @@ export const ImageLoader = props => {
       case 'count':
         if (state.timeCount < (state.imgDispCount + 1) * 5) {
           props.setMode('home');
-          return;// initState;
+          return; // initState;
         }
         if (state && state.imgFiles && state.imgFiles.length > 1)
           return {
@@ -164,13 +172,15 @@ export const ImageLoader = props => {
             if (!success) {
               console.error('unable to play Sound');
             } else {
-              // 随机挑一个曲子 [1,n] n = soundFiles.length - 1
-              let soundIdx =
-                Math.floor(Math.random() * (soundFiles.length - 1)) + 1;
-              setCurrentTrackName(soundFiles[soundIdx]);
+              setCount(count => count + 1);
+              const sndFileIdx = (count + 1) % soundFiles.length;
+              if (sndFileIdx === 0) {
+                shuffleArray(soundFiles);
+              }
+              setCurrentTrackName(soundFiles[sndFileIdx]);
               console.log(
                 'finish playing, soundFiles now is:',
-                soundFiles[soundIdx],
+                soundFiles[sndFileIdx],
               );
             }
           });
@@ -183,10 +193,16 @@ export const ImageLoader = props => {
       console.log('currentSound && currentSound.current', currentSound);
       if (currentSound && currentSound.current) {
         currentSound.current.release();
-        // 随机挑一个曲子 [1,n] n = soundFiles.length - 1
-        let soundIdx = Math.floor(Math.random() * (soundFiles.length - 1)) + 1;
-        setCurrentTrackName(soundFiles[soundIdx]);
-        console.log('finish playing, soundfiles now is:', soundFiles[soundIdx]);
+        setCount(count => count + 1);
+        const sndFileIdx = (count + 1) % soundFiles.length;
+        if (sndFileIdx === 0) {
+          shuffleArray(soundFiles);
+        }
+        setCurrentTrackName(soundFiles[sndFileIdx]);
+        console.log(
+          'finish playing, soundFiles now is:',
+          soundFiles[sndFileIdx],
+        );
       }
     };
   }, [currentTrackName]);
