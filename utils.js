@@ -1,6 +1,7 @@
 let RNFS = require('react-native-fs');
 
 export const BASEPATH = RNFS.DocumentDirectoryPath;
+export const TIME_FILENAME = 'timenow';
 
 export const saveMp3file = async (fileName, audioStream) => {
   // create a path you want to write to
