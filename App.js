@@ -48,6 +48,7 @@ const App = () => {
     // const seconds = now.getSeconds();
 
     const timeNowText = `现在时刻${hours}点${minutes}分`;
+    console.log('timenow:', timeNowText);
 
     const pollyParams = {
       OutputFormat: 'mp3',
@@ -112,31 +113,16 @@ const App = () => {
         appState.current.match(/inactive|background/) &&
         nextAppState === 'active'
       ) {
-        if (currentSound && currentSound.current) {
-          currentSound.current.stop(() => currentSound.current.play());
-        } else {
-          currentSound.current = new Sound(
-            'https://raw.githubusercontent.com/solariswu/musicstore/master/assets/hello.mp3',
-            '', //Sound.MAIN_BUNDLE,
-            (error, _sound) => {
-              if (error) {
-                alert('error' + error.message);
-                return;
-              }
-              currentSound.current.play();
-              // () => {
-              //   currentSound.current.release();
-              // });
-            },
-          );
+        if (mode === 'home') {
+          getAndPlayTimeNow();
         }
 
-        console.log('App has come to the foreground!');
+        // console.log('App has come to the foreground!');
       }
 
       appState.current = nextAppState;
       // setAppStateVisible(appState.current);
-      console.log('AppState', appState.current);
+      // console.log('AppState', appState.current);
     });
 
     return () => {
