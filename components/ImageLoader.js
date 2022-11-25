@@ -17,7 +17,6 @@ const githubRawAssetsPath =
   'https://raw.githubusercontent.com/solariswu/musicstore/master/assets/';
 
 const sndFiles = [
-  // 'welcome.mp3',
   '001.mp3',
   '002.mp3',
   '003.mp3',
@@ -26,7 +25,7 @@ const sndFiles = [
   '006.mp3',
   '007.mp3',
   '008.mp3',
-  // '009.mp3',
+  '009.mp3',
 ];
 
 const soundFiles = shuffleArray(sndFiles);

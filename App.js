@@ -45,9 +45,9 @@ const App = () => {
     const now = new Date();
     const hours = now.getHours();
     const minutes = now.getMinutes();
-    // const seconds = now.getSeconds();
 
-    const timeNowText = `现在时刻${hours}点${minutes}分`;
+    const timeNowText =
+      `现在时刻${hours}点` + minutes > 9 ? '' : '0' + `${minutes}分`;
     console.log('timenow:', timeNowText);
 
     const pollyParams = {
