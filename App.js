@@ -46,14 +46,13 @@ const App = () => {
     const hours = now.getHours();
     const minutes = now.getMinutes();
 
-    const timeNowText =
-      `现在时刻${hours}点` + minutes > 9 ? '' : '0' + `${minutes}分`;
-    console.log('timenow:', timeNowText);
+    const prefixTimeMin = minutes > 9 ? '' : '0';
+    // console.log('timenow:', timeNowText);
 
     const pollyParams = {
       OutputFormat: 'mp3',
       LanguageCode: 'cmn-CN',
-      Text: timeNowText,
+      Text: `现在时刻${hours}点` + prefixTimeMin + `${minutes}分`,
       VoiceId: 'Zhiyu',
     };
     polly
