@@ -2,6 +2,12 @@ let RNFS = require('react-native-fs');
 
 export const BASEPATH = RNFS.DocumentDirectoryPath;
 export const TIME_FILENAME = 'timenow';
+export const EARLIER_BACK = 'earlierback';
+export const PRINCE_BACK = 'princeback';
+export const LATE_BACK = 'lateback';
+
+export const githubRawAssetsPath =
+  'https://raw.githubusercontent.com/solariswu/musicstore/master/assets/';
 
 export const saveMp3file = async (fileName, audioStream) => {
   // create a path you want to write to

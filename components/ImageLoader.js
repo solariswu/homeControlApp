@@ -11,10 +11,7 @@ import {
 import Sound from 'react-native-sound';
 import {pwd} from '../const';
 
-import {shuffleArray} from '../utils';
-
-const githubRawAssetsPath =
-  'https://raw.githubusercontent.com/solariswu/musicstore/master/assets/';
+import {shuffleArray, githubRawAssetsPath} from '../utils';
 
 const sndFiles = [
   '001.mp3',
@@ -178,9 +175,6 @@ export const ImageLoader = props => {
             } else {
               setCount(count => count + 1);
               const sndFileIdx = (count + 1) % soundFiles.length;
-              if (sndFileIdx === 0) {
-                shuffleArray(soundFiles);
-              }
               setCurrentTrackName(soundFiles[sndFileIdx]);
               console.log(
                 'finish playing, soundFiles now is:',
@@ -199,9 +193,6 @@ export const ImageLoader = props => {
         currentSound.current.release();
         setCount(count => count + 1);
         const sndFileIdx = (count + 1) % soundFiles.length;
-        if (sndFileIdx === 0) {
-          shuffleArray(soundFiles);
-        }
         setCurrentTrackName(soundFiles[sndFileIdx]);
         console.log(
           'finish playing, soundFiles now is:',

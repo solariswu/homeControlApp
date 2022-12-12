@@ -14,7 +14,15 @@ import Sound from 'react-native-sound';
 import {ImageLoader} from './components/ImageLoader';
 import {Memo} from './components/Memo';
 
-import {saveMp3file, BASEPATH, TIME_FILENAME} from './utils';
+import {
+  saveMp3file,
+  BASEPATH,
+  TIME_FILENAME,
+  EARLIER_BACK,
+  PRINCE_BACK,
+  LATE_BACK,
+  githubRawAssetsPath,
+} from './utils';
 
 import {ASIS, SECC} from './const';
 
@@ -80,6 +88,55 @@ const App = () => {
                 console.error('unable to play Sound');
               } else {
                 console.log('finish playing time now');
+                // check current time
+                // 16:00 - 16:45 play earlierback
+                // 16:46 - 17:30 princeback
+                // 17:31 - 18:30 lateback
+                let backSndFileName = '';
+                console.log ('hours:', hours);
+                console.log ('minutes:', minutes);
+
+                if (hours == 16 && minutes >= 0 && minutes <= 45) {
+                  backSndFileName = `${githubRawAssetsPath}${EARLIER_BACK}.mp3`;
+                }
+                if (
+                  (hours == 16 && minutes >= 46) ||
+                  (hours == 17 && minutes <= 30)
+                ) {
+                  backSndFileName = `${githubRawAssetsPath}${PRINCE_BACK}.mp3`;
+                }
+                if (
+                  (hours == 17 && minutes > 30) ||
+                  (hours == 18 && minutes <= 30)
+                ) {
+                  backSndFileName = `${githubRawAssetsPath}${LATE_BACK}.mp3`;
+                }
+
+                console.log ('backsoundfile:', backSndFileName);
+
+                if (backSndFileName != '') {
+                  const backSnd = new Sound(
+                    backSndFileName,
+                    '', //Sound.MAIN_BUNDLE,
+                    (error, _sound) => {
+                      if (error) {
+                        console.error('error on loading Sound', error);
+                        return;
+                      }
+
+                      if (currentSound && currentSound.current) {
+                        currentSound.current.release();
+                      }
+                      currentSound.current = backSnd.play(success => {
+                        if (!success) {
+                          console.error('unable to play Sound');
+                        } else {
+                          console.log('finish playing back now');
+                        }
+                      });
+                    },
+                  );
+                }
               }
             });
           },
