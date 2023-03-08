@@ -33,6 +33,7 @@ const sndFiles = [
   '017.mp3',
   '018.mp3',
   '019.mp3',
+  '020.mp3',
 ];
 
 const soundFiles = shuffleArray(sndFiles);
